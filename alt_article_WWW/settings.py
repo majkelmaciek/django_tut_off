@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 
 
     # my own
-    'alt_article_APP',
+    'alt_article_APP.apps.AltArticleAppConfig', #or simply 'alt_article_APP',
 ]
 
 MIDDLEWARE = [
