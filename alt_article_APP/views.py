@@ -1,27 +1,28 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-
-from django.http import HttpResponse, HttpResponseRedirect
-from .models import Choice, Question
 from django.urls import reverse
+from django.views import generic
 from django.db.models import F
+
+from .models import Choice, Question
 
 # Create your views here.
 
-def index(request):
-    latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    return render(
-                request, 
-                'alt_article_APP/index.html', 
-                {'latest_question_list' : latest_question_list},
-            )
+class IndexView(generic.ListView):
+    template_name = 'alt_article_APP/index.html'
+    context_object_name = 'latest_question_list'
 
-def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'alt_article_APP/results.html', {'question' : question})
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Question.objects.order_by('-pub_date')[:5]
 
-def detail(request, question_id):
-    context = { 'question_MW' : get_object_or_404(Question, pk=question_id) }
-    return render(request, 'alt_article_APP/detail.html', context)
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'alt_article_APP/results.html'
+
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'alt_article_APP/detail.html'
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -30,7 +31,7 @@ def vote(request, question_id):
     except (KeyError, Choice.DoesNotExist):
         # Redisplay the question voting form.
         return render(request, "alt_article_APP/detail.html", {
-            'question_MW': question,
+            'question': question,
             'errorMessage': "Nie wybrales żadnej odpowiedzi.",
         })
     else:
